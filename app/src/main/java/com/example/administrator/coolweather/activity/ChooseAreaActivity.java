@@ -2,7 +2,10 @@ package com.example.administrator.coolweather.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -76,9 +79,20 @@ public class ChooseAreaActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        pushView();
         getSupportActionBar().hide();
         setContentView(R.layout.choose_area);
         init();
+    }
+
+    private void pushView() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (prefs.getBoolean("city_selected", false)) {
+            Intent intent = new Intent(this, WeatherActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
     }
 
     private void init() {
@@ -96,6 +110,14 @@ public class ChooseAreaActivity extends AppCompatActivity {
                 } else if (currentLevel == LEVEL_CITY) {
                     selectedCity = cityList.get(position);
                     queryCounties();
+                } else if (currentLevel == LEVEL_COUNTY) {
+//                    Toast.makeText(ChooseAreaActivity.this,"你点了我",Toast.LENGTH_SHORT).show();
+                    String countyCode = countyList.get(position).getCountyCode();
+                    Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+                    intent.putExtra("county_code", countyCode);
+                    startActivity(intent);
+                    finish();
+
                 }
             }
         });
@@ -156,7 +178,7 @@ public class ChooseAreaActivity extends AppCompatActivity {
             titleText.setText(selectedCity.getCityname());
             currentLevel = LEVEL_COUNTY;
         } else {
-            queryFromServer(selectedCity.getCityCode(), "county");
+            queryFromServer(selectedCity.getCityCode(), "County");
         }
     }
 
